@@ -1,0 +1,196 @@
+:root {
+  color: #12233f;
+  background: #fbfdff;
+  font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button {
+  font: inherit;
+}
+
+.landing-page {
+  display: grid;
+  grid-template-columns: minmax(20rem, 0.88fr) minmax(30rem, 1.12fr);
+  min-height: 100vh;
+  overflow: hidden;
+  background: #fbfdff;
+}
+
+.number-panel {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100%;
+  overflow: hidden;
+  background: #e8f0ff;
+  border-right: 1px solid #cfddf6;
+}
+
+.number-panel::before,
+.number-panel::after {
+  position: absolute;
+  content: "";
+  border: 1px solid #cfddf6;
+  border-radius: 50%;
+}
+
+.number-panel::before {
+  width: 31rem;
+  height: 31rem;
+}
+
+.number-panel::after {
+  width: 42rem;
+  height: 42rem;
+}
+
+.number-wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2.75rem);
+}
+
+.big-three {
+  color: #155eef;
+  font-size: clamp(13rem, 28vw, 25rem);
+  font-weight: 700;
+  line-height: 0.72;
+  letter-spacing: -0.13em;
+}
+
+.task-lines {
+  display: grid;
+  gap: 1.15rem;
+  width: clamp(5rem, 9vw, 8rem);
+}
+
+.task-lines span {
+  display: block;
+  height: 0.9rem;
+  background: #fbfdff;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(21, 94, 239, 0.08);
+}
+
+.task-lines span:nth-child(2) {
+  width: 78%;
+}
+
+.task-lines span:nth-child(3) {
+  width: 90%;
+}
+
+.message-panel {
+  display: flex;
+  align-items: center;
+  padding: clamp(3rem, 8vw, 8rem);
+}
+
+.message {
+  max-width: 43rem;
+}
+
+h1 {
+  margin: 0;
+  max-width: 15ch;
+  font-size: clamp(2.8rem, 5.7vw, 6.6rem);
+  font-weight: 650;
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+p {
+  max-width: 35rem;
+  margin: 2rem 0 0;
+  color: #51627b;
+  font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+  line-height: 1.55;
+}
+
+button {
+  margin-top: 2.5rem;
+  min-width: 9rem;
+  padding: 0.95rem 1.65rem;
+  color: #ffffff;
+  background: #155eef;
+  border: 1px solid #155eef;
+  border-radius: 0.65rem;
+  cursor: pointer;
+  font-weight: 650;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+button:hover {
+  background: #0b4bd4;
+  border-color: #0b4bd4;
+  transform: translateY(-1px);
+}
+
+button:focus-visible {
+  outline: 3px solid #95b8ff;
+  outline-offset: 4px;
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 800px) {
+  .landing-page {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(15rem, 38vh) 1fr;
+  }
+
+  .number-panel {
+    min-height: 15rem;
+    border-right: 0;
+    border-bottom: 1px solid #cfddf6;
+  }
+
+  .number-panel::before {
+    width: 21rem;
+    height: 21rem;
+  }
+
+  .number-panel::after {
+    width: 29rem;
+    height: 29rem;
+  }
+
+  .big-three {
+    font-size: clamp(9rem, 45vw, 13rem);
+  }
+
+  .message-panel {
+    align-items: flex-start;
+    padding: clamp(2.25rem, 8vw, 4rem) clamp(1.35rem, 7vw, 3rem) 3rem;
+  }
+
+  h1 {
+    max-width: 14ch;
+    font-size: clamp(2.5rem, 11vw, 4.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button {
+    transition: none;
+  }
+}
