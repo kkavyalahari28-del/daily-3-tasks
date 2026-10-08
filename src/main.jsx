@@ -189,9 +189,10 @@ function App() {
       <section className="work-panel" aria-labelledby="page-title">
         <div className="work-area">
           <div className="intro">
-            <h1 id="page-title">What are you working toward?</h1>
+            <h1 id="page-title">What income goal are you working toward?</h1>
             <p>
-              Tell me your income goal. You’ll get three specific tasks to
+              If you’re a freelancer, tell me how much you want to earn and
+              what kind of work you do. You’ll get three specific tasks to
               start today.
             </p>
           </div>
@@ -203,7 +204,7 @@ function App() {
               name="goal"
               value={goal}
               onChange={(event) => setGoal(event.target.value)}
-              placeholder="Sign my first creator as a growth operator"
+              placeholder="Earn ₹50,000 a month from freelance design"
               rows="3"
               maxLength="500"
               aria-describedby={error ? "goal-error" : undefined}
@@ -229,7 +230,10 @@ function App() {
           {tasks.length > 0 ? (
             <section className="results" aria-labelledby="results-title">
               <h2 id="results-title">Most important</h2>
-              <ol className="task-list important-task-list">
+              <ol
+                className="task-list important-task-list"
+                aria-label="Most important tasks"
+              >
                 {mostImportantTasks.map((task) => (
                   <TaskItem
                     key={task.id}
@@ -250,7 +254,7 @@ function App() {
                     <path d="m6 8 4 4 4-4" />
                   </svg>
                 </summary>
-                <ol className="task-list">
+                <ol className="task-list" aria-label="Later tasks">
                   {laterTasks.map((task) => (
                     <TaskItem
                       key={task.id}

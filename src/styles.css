@@ -419,33 +419,55 @@ button:disabled {
 
   .number-panel {
     position: relative;
-    height: min(32vh, 18rem);
-    min-height: 14rem;
+    place-items: center start;
+    height: 6.5rem;
+    min-height: 0;
+    padding: 1.25rem clamp(1.35rem, 7vw, 3rem);
     border-right: 0;
     border-bottom: 1px solid #cfddf6;
   }
 
   .number-panel::before {
-    width: 20rem;
-    height: 20rem;
+    right: 2.5rem;
+    width: 7rem;
+    height: 7rem;
   }
 
   .number-panel::after {
-    width: 28rem;
-    height: 28rem;
+    right: -1rem;
+    width: 10rem;
+    height: 10rem;
+  }
+
+  .number-wrap {
+    gap: 0.65rem;
   }
 
   .big-three {
-    font-size: clamp(9rem, 43vw, 12rem);
+    font-size: 4.5rem;
+    line-height: 0.72;
+  }
+
+  .task-lines {
+    gap: 0.4rem;
+    width: 2.75rem;
+  }
+
+  .task-lines span {
+    height: 0.35rem;
   }
 
   .work-panel {
     align-items: flex-start;
-    padding: clamp(2.5rem, 8vw, 4rem) clamp(1.35rem, 7vw, 3rem) 4rem;
+    padding: 1.75rem clamp(1.35rem, 7vw, 3rem) 4rem;
   }
 
   h1 {
-    font-size: clamp(2.7rem, 12vw, 4.5rem);
+    font-size: clamp(2.5rem, 10.5vw, 4.5rem);
+  }
+
+  form {
+    margin-top: 2rem;
   }
 }
 
