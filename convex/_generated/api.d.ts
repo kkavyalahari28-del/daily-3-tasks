@@ -8,7 +8,10 @@
  * @module
  */
 
+import type * as checklistModel from "../checklistModel.js";
+import type * as checklists from "../checklists.js";
 import type * as openaiErrors from "../openaiErrors.js";
+import type * as taskPlan from "../taskPlan.js";
 import type * as tasks from "../tasks.js";
 
 import type {
@@ -18,7 +21,10 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  checklistModel: typeof checklistModel;
+  checklists: typeof checklists;
   openaiErrors: typeof openaiErrors;
+  taskPlan: typeof taskPlan;
   tasks: typeof tasks;
 }>;
 

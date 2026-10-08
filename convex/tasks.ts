@@ -1,7 +1,13 @@
 import { ConvexError, v } from "convex/values";
 
+import { internal } from "./_generated/api";
 import { action } from "./_generated/server";
+import {
+  assertValidClientId,
+  checklistValueValidator,
+} from "./checklistModel";
 import { classifyOpenAIFailure, getRetryDelayMs } from "./openaiErrors";
+import { parseTaskPlan } from "./taskPlan";
 
 const TASK_MODEL = "gpt-6-luna";
 const MAX_OPENAI_ATTEMPTS = 3;
@@ -26,14 +32,15 @@ async function askOpenAI(cleanGoal: string, apiKey: string) {
           {
             role: "system",
             content: [
-              "You turn a freelancer's income goal into today's three best tasks.",
-              "Return only a JSON object in this exact shape: {\"tasks\":[\"task 1\",\"task 2\",\"task 3\"]}.",
-              "Return exactly three tasks in priority order.",
+              "You turn a freelancer's income goal into a complete, focused checklist of 6 to 8 tasks.",
+              "Return only a JSON object in this exact shape: {\"mostImportant\":[\"task 1\",\"task 2\",\"task 3\"],\"later\":[\"task 4\",\"task 5\",\"task 6\"]}.",
+              "Return exactly three mostImportant tasks in priority order and three to five later tasks in the order they should happen.",
+              "Together, the tasks must cover the shortest realistic path from the freelancer's current position to the goal.",
               "Each task must start with a clear action verb, name a concrete output or person, and be possible to start immediately without another decision.",
               "Each task should take roughly 15 to 45 minutes and directly improve the chance of earning income.",
               "Use plain language and speak directly to the freelancer.",
               "Never return vague tasks such as 'work on outreach', 'do research', 'build your brand', or 'make a plan'.",
-              "Do not include explanations, headings, deadlines, guilt, or more than three tasks.",
+              "Do not include explanations, headings, deadlines, or guilt.",
             ].join(" "),
           },
           {
@@ -75,10 +82,17 @@ async function askOpenAI(cleanGoal: string, apiKey: string) {
 export const generate = action({
   args: {
     goal: v.string(),
+    clientId: v.string(),
   },
-  returns: v.array(v.string()),
-  handler: async (_ctx, { goal }) => {
+  returns: checklistValueValidator,
+  handler: async (ctx, { goal, clientId }) => {
     const cleanGoal = goal.trim();
+
+    try {
+      assertValidClientId(clientId);
+    } catch {
+      throw new ConvexError("This browser could not save its checklist.");
+    }
 
     if (!cleanGoal) {
       throw new ConvexError("Write your goal first.");
@@ -107,31 +121,35 @@ export const generate = action({
       );
     }
 
-    let parsed: unknown;
+    let plan;
 
     try {
-      parsed = JSON.parse(content);
+      plan = parseTaskPlan(content);
     } catch {
       throw new ConvexError(
         "The AI returned an unexpected answer. Please try again.",
       );
     }
 
-    const tasks =
-      typeof parsed === "object" && parsed !== null && "tasks" in parsed
-        ? (parsed as { tasks?: unknown }).tasks
-        : null;
+    const tasks = [...plan.mostImportant, ...plan.later].map(
+      (text, position) => ({
+        id: crypto.randomUUID(),
+        text,
+        section: position < 3 ? ("important" as const) : ("later" as const),
+        position,
+        completed: false,
+      }),
+    );
 
-    if (
-      !Array.isArray(tasks) ||
-      tasks.length !== 3 ||
-      tasks.some((task) => typeof task !== "string" || !task.trim())
-    ) {
-      throw new ConvexError(
-        "The AI returned an unexpected answer. Please try again.",
-      );
-    }
+    await ctx.runMutation(internal.checklists.saveGenerated, {
+      clientId,
+      goal: cleanGoal,
+      tasks,
+    });
 
-    return tasks.map((task) => task.trim());
+    return {
+      goal: cleanGoal,
+      tasks,
+    };
   },
 });
