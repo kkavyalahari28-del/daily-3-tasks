@@ -23,3 +23,28 @@ export function assertValidClientId(clientId: string) {
     throw new Error("Invalid browser ID.");
   }
 }
+
+export function assertValidDateKey(dateKey: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) {
+    throw new Error("Invalid date.");
+  }
+
+  const [year, month, day] = dateKey.split("-").map(Number);
+  const normalized = new Date(Date.UTC(year, month - 1, day))
+    .toISOString()
+    .slice(0, 10);
+
+  if (normalized !== dateKey) {
+    throw new Error("Invalid date.");
+  }
+}
+
+export function assertValidTimezoneOffset(timezoneOffsetMinutes: number) {
+  if (
+    !Number.isInteger(timezoneOffsetMinutes) ||
+    timezoneOffsetMinutes < -840 ||
+    timezoneOffsetMinutes > 840
+  ) {
+    throw new Error("Invalid timezone.");
+  }
+}

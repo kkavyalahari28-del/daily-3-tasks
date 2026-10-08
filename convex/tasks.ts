@@ -4,6 +4,7 @@ import { internal } from "./_generated/api";
 import { action } from "./_generated/server";
 import {
   assertValidClientId,
+  assertValidDateKey,
   checklistValueValidator,
 } from "./checklistModel";
 import { classifyOpenAIFailure, getRetryDelayMs } from "./openaiErrors";
@@ -83,13 +84,15 @@ export const generate = action({
   args: {
     goal: v.string(),
     clientId: v.string(),
+    localDate: v.string(),
   },
   returns: checklistValueValidator,
-  handler: async (ctx, { goal, clientId }) => {
+  handler: async (ctx, { goal, clientId, localDate }) => {
     const cleanGoal = goal.trim();
 
     try {
       assertValidClientId(clientId);
+      assertValidDateKey(localDate);
     } catch {
       throw new ConvexError("This browser could not save its checklist.");
     }
@@ -145,6 +148,7 @@ export const generate = action({
       clientId,
       goal: cleanGoal,
       tasks,
+      localDate,
     });
 
     return {

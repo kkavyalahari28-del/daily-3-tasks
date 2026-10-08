@@ -8,6 +8,7 @@ export default defineSchema({
     clientId: v.string(),
     goal: v.string(),
     tasks: v.array(savedTaskValidator),
+    activeDate: v.optional(v.string()),
     updatedAt: v.number(),
   }).index("by_client_id", ["clientId"]),
 });

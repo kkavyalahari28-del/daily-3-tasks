@@ -7,9 +7,15 @@ import {
 } from "./_generated/server";
 import {
   assertValidClientId,
+  assertValidDateKey,
+  assertValidTimezoneOffset,
   checklistValueValidator,
   savedTaskValidator,
 } from "./checklistModel";
+import {
+  getLocalDateKeyFromTimestamp,
+  rollTasksForward,
+} from "./dailyTasks";
 
 export const getForClient = query({
   args: {
@@ -44,10 +50,12 @@ export const saveGenerated = internalMutation({
     clientId: v.string(),
     goal: v.string(),
     tasks: v.array(savedTaskValidator),
+    localDate: v.string(),
   },
   returns: v.null(),
-  handler: async (ctx, { clientId, goal, tasks }) => {
+  handler: async (ctx, { clientId, goal, tasks, localDate }) => {
     assertValidClientId(clientId);
+    assertValidDateKey(localDate);
 
     const checklist = await ctx.db
       .query("checklists")
@@ -57,6 +65,7 @@ export const saveGenerated = internalMutation({
       clientId,
       goal,
       tasks,
+      activeDate: localDate,
       updatedAt: Date.now(),
     };
 
@@ -67,6 +76,61 @@ export const saveGenerated = internalMutation({
     }
 
     return null;
+  },
+});
+
+export const openForDay = mutation({
+  args: {
+    clientId: v.string(),
+    localDate: v.string(),
+    timezoneOffsetMinutes: v.number(),
+  },
+  returns: v.union(v.null(), checklistValueValidator),
+  handler: async (
+    ctx,
+    { clientId, localDate, timezoneOffsetMinutes },
+  ) => {
+    try {
+      assertValidClientId(clientId);
+      assertValidDateKey(localDate);
+      assertValidTimezoneOffset(timezoneOffsetMinutes);
+    } catch {
+      throw new ConvexError("This browser could not load its checklist.");
+    }
+
+    const checklist = await ctx.db
+      .query("checklists")
+      .withIndex("by_client_id", (q) => q.eq("clientId", clientId))
+      .unique();
+
+    if (!checklist) {
+      return null;
+    }
+
+    let tasks = checklist.tasks;
+    const previousDate =
+      checklist.activeDate ??
+      getLocalDateKeyFromTimestamp(
+        checklist.updatedAt,
+        timezoneOffsetMinutes,
+      );
+
+    if (previousDate < localDate) {
+      tasks = rollTasksForward(tasks);
+    }
+
+    if (!checklist.activeDate || previousDate < localDate) {
+      await ctx.db.patch(checklist._id, {
+        activeDate: localDate,
+        tasks,
+        updatedAt: Date.now(),
+      });
+    }
+
+    return {
+      goal: checklist.goal,
+      tasks,
+    };
   },
 });
 

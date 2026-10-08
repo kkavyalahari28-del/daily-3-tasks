@@ -5,7 +5,6 @@ import {
   ConvexReactClient,
   useAction,
   useMutation,
-  useQuery,
 } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { getActionErrorMessage } from "./actionErrors";
@@ -19,6 +18,15 @@ if (!convexUrl) {
 
 const convex = new ConvexReactClient(convexUrl);
 const CLIENT_ID_KEY = "daily-3-tasks-client-id";
+
+function getLocalDateKey() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
 
 function getOrCreateClientId() {
   const existingClientId = window.localStorage.getItem(CLIENT_ID_KEY);
@@ -54,28 +62,49 @@ function TaskItem({ task, isSaving, onToggle }) {
 
 function App() {
   const [clientId] = useState(getOrCreateClientId);
+  const [localDate] = useState(getLocalDateKey);
+  const [timezoneOffsetMinutes] = useState(() =>
+    new Date().getTimezoneOffset(),
+  );
   const generateTasks = useAction(api.tasks.generate);
+  const openChecklistForDay = useMutation(api.checklists.openForDay);
   const setTaskCompleted = useMutation(api.checklists.setTaskCompleted);
-  const savedChecklist = useQuery(api.checklists.getForClient, { clientId });
   const [goal, setGoal] = useState("");
   const [tasks, setTasks] = useState([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [hasLoadedSavedChecklist, setHasLoadedSavedChecklist] = useState(false);
   const [savingTaskIds, setSavingTaskIds] = useState([]);
 
   useEffect(() => {
-    if (savedChecklist === undefined || hasLoadedSavedChecklist) {
-      return;
+    let ignoreResult = false;
+
+    async function loadChecklist() {
+      try {
+        const savedChecklist = await openChecklistForDay({
+          clientId,
+          localDate,
+          timezoneOffsetMinutes,
+        });
+
+        if (!ignoreResult && savedChecklist) {
+          setGoal(savedChecklist.goal);
+          setTasks(savedChecklist.tasks);
+        }
+      } catch (requestError) {
+        console.error(requestError);
+
+        if (!ignoreResult) {
+          setError("I couldn't load your checklist. Refresh and try again.");
+        }
+      }
     }
 
-    if (savedChecklist) {
-      setGoal(savedChecklist.goal);
-      setTasks(savedChecklist.tasks);
-    }
+    loadChecklist();
 
-    setHasLoadedSavedChecklist(true);
-  }, [savedChecklist, hasLoadedSavedChecklist]);
+    return () => {
+      ignoreResult = true;
+    };
+  }, [clientId, localDate, openChecklistForDay, timezoneOffsetMinutes]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -91,7 +120,11 @@ function App() {
     setIsLoading(true);
 
     try {
-      const checklist = await generateTasks({ goal: cleanGoal, clientId });
+      const checklist = await generateTasks({
+        goal: cleanGoal,
+        clientId,
+        localDate,
+      });
       setGoal(checklist.goal);
       setTasks(checklist.tasks);
     } catch (requestError) {
