@@ -10,29 +10,35 @@
   box-sizing: border-box;
 }
 
+::selection {
+  color: #ffffff;
+  background: #155eef;
+}
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
 }
 
-button {
+button,
+textarea {
   font: inherit;
 }
 
-.landing-page {
+.goal-page {
   display: grid;
-  grid-template-columns: minmax(20rem, 0.88fr) minmax(30rem, 1.12fr);
+  grid-template-columns: minmax(20rem, 0.78fr) minmax(34rem, 1.22fr);
   min-height: 100vh;
-  overflow: hidden;
   background: #fbfdff;
 }
 
 .number-panel {
-  position: relative;
+  position: sticky;
+  top: 0;
   display: grid;
   place-items: center;
-  min-height: 100%;
+  height: 100vh;
   overflow: hidden;
   background: #e8f0ff;
   border-right: 1px solid #cfddf6;
@@ -66,10 +72,10 @@ button {
 
 .big-three {
   color: #155eef;
-  font-size: clamp(13rem, 28vw, 25rem);
+  font-size: clamp(13rem, 27vw, 24rem);
   font-weight: 700;
   line-height: 0.72;
-  letter-spacing: -0.13em;
+  letter-spacing: -0.04em;
 }
 
 .task-lines {
@@ -83,7 +89,7 @@ button {
   height: 0.9rem;
   background: #fbfdff;
   border-radius: 999px;
-  box-shadow: 0 0 0 1px rgba(21, 94, 239, 0.08);
+  box-shadow: 0 2px 10px rgba(18, 35, 63, 0.06);
 }
 
 .task-lines span:nth-child(2) {
@@ -94,37 +100,111 @@ button {
   width: 90%;
 }
 
-.message-panel {
+.work-panel {
   display: flex;
   align-items: center;
-  padding: clamp(3rem, 8vw, 8rem);
+  min-width: 0;
+  padding: clamp(3rem, 7vw, 7rem);
 }
 
-.message {
-  max-width: 43rem;
+.work-area {
+  width: min(100%, 46rem);
+}
+
+.intro {
+  max-width: 42rem;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
 }
 
 h1 {
-  margin: 0;
-  max-width: 15ch;
-  font-size: clamp(2.8rem, 5.7vw, 6.6rem);
+  margin-bottom: 1.5rem;
+  max-width: 12ch;
+  font-size: clamp(3rem, 5.5vw, 5.75rem);
   font-weight: 650;
   line-height: 0.98;
-  letter-spacing: -0.055em;
+  letter-spacing: -0.04em;
 }
 
-p {
-  max-width: 35rem;
-  margin: 2rem 0 0;
+.intro p {
+  max-width: 34rem;
+  margin-bottom: 0;
   color: #51627b;
-  font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+  font-size: clamp(1.05rem, 1.6vw, 1.3rem);
   line-height: 1.55;
 }
 
+form {
+  margin-top: 3rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.65rem;
+  color: #263a59;
+  font-size: 0.95rem;
+  font-weight: 650;
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  min-height: 8.5rem;
+  resize: vertical;
+  padding: 1.1rem 1.2rem;
+  color: #12233f;
+  caret-color: #155eef;
+  background: #ffffff;
+  border: 1px solid #a9bad3;
+  border-radius: 0.8rem;
+  outline: none;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+textarea::placeholder {
+  color: #6c7d95;
+}
+
+textarea:hover {
+  border-color: #6f86a8;
+}
+
+textarea:focus-visible {
+  border-color: #155eef;
+  box-shadow: 0 0 0 4px #d6e3ff;
+}
+
+textarea:disabled {
+  color: #66768d;
+  background: #f2f5f9;
+  cursor: wait;
+}
+
+.form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.goal-count {
+  color: #6c7d95;
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+}
+
 button {
-  margin-top: 2.5rem;
-  min-width: 9rem;
-  padding: 0.95rem 1.65rem;
+  min-width: 11.5rem;
+  padding: 0.95rem 1.4rem;
   color: #ffffff;
   background: #155eef;
   border: 1px solid #155eef;
@@ -137,7 +217,7 @@ button {
     transform 160ms ease;
 }
 
-button:hover {
+button:hover:not(:disabled) {
   background: #0b4bd4;
   border-color: #0b4bd4;
   transform: translateY(-1px);
@@ -148,49 +228,126 @@ button:focus-visible {
   outline-offset: 4px;
 }
 
-button:active {
+button:active:not(:disabled) {
   transform: translateY(0);
 }
 
-@media (max-width: 800px) {
-  .landing-page {
+button:disabled {
+  color: #dce6fa;
+  background: #5d7db8;
+  border-color: #5d7db8;
+  cursor: wait;
+}
+
+.error-message {
+  margin: 1.1rem 0 0;
+  color: #a32929;
+  line-height: 1.5;
+}
+
+.results {
+  margin-top: 3.5rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid #cfddf6;
+}
+
+.results h2 {
+  margin-bottom: 1.4rem;
+  font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+
+.results ol {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: tasks;
+}
+
+.results li {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  gap: 1rem;
+  align-items: start;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid #dfe7f3;
+  font-size: 1.08rem;
+  line-height: 1.55;
+  counter-increment: tasks;
+}
+
+.results li::before {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  color: #155eef;
+  background: #e8f0ff;
+  border-radius: 50%;
+  content: counter(tasks);
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 820px) {
+  .goal-page {
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(15rem, 38vh) 1fr;
   }
 
   .number-panel {
-    min-height: 15rem;
+    position: relative;
+    height: min(32vh, 18rem);
+    min-height: 14rem;
     border-right: 0;
     border-bottom: 1px solid #cfddf6;
   }
 
   .number-panel::before {
-    width: 21rem;
-    height: 21rem;
+    width: 20rem;
+    height: 20rem;
   }
 
   .number-panel::after {
-    width: 29rem;
-    height: 29rem;
+    width: 28rem;
+    height: 28rem;
   }
 
   .big-three {
-    font-size: clamp(9rem, 45vw, 13rem);
+    font-size: clamp(9rem, 43vw, 12rem);
   }
 
-  .message-panel {
+  .work-panel {
     align-items: flex-start;
-    padding: clamp(2.25rem, 8vw, 4rem) clamp(1.35rem, 7vw, 3rem) 3rem;
+    padding: clamp(2.5rem, 8vw, 4rem) clamp(1.35rem, 7vw, 3rem) 4rem;
   }
 
   h1 {
-    max-width: 14ch;
-    font-size: clamp(2.5rem, 11vw, 4.5rem);
+    font-size: clamp(2.7rem, 12vw, 4.5rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .form-footer {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  .goal-count {
+    align-self: flex-end;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  button {
+  button,
+  textarea {
     transition: none;
   }
 }
